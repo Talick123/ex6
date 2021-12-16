@@ -9,3 +9,7 @@
 
 inferno-03 = 10.3.10.25
 */
+
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>

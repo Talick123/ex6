@@ -16,3 +16,7 @@
 - when done, prints output like last time
 
 */
+
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
