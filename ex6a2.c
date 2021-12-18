@@ -82,6 +82,9 @@ int connect_to_socket(char ip[], char port[], struct addrinfo con_kind, struct a
 {
     int my_socket, rc;
 
+	printf("Port is: %s\n", port);
+	printf("IP is: %s\n", ip);
+
     memset(&con_kind, 0, sizeof(con_kind));
     con_kind.ai_family = AF_UNSPEC;
     con_kind.ai_socktype = SOCK_STREAM;
@@ -107,6 +110,8 @@ int connect_to_socket(char ip[], char port[], struct addrinfo con_kind, struct a
 
 void generate_numbers(int my_socket)
 {
+	printf("in generate numbers\n");
+
     int rc;
     int max_count, max_prime, num, new_primes, answer;
      max_count = new_primes = 0;
@@ -116,7 +121,11 @@ void generate_numbers(int my_socket)
     rc = read(my_socket, &answer, sizeof(int));
 
     if(answer != START) //just to check
-        printf("%d", answer);
+    {
+        printf(" %d", answer);
+	}
+
+	printf("after start\n");
 
     while(answer != END)
     {
@@ -124,13 +133,19 @@ void generate_numbers(int my_socket)
 
         if(prime(num))
         {
+			printf("writing\n");
             write(my_socket, &num, sizeof(int));
+            printf("reading\n"); //gets to here
             rc = read(my_socket, &answer, sizeof(int));
             if(rc > 0)
             {
-                if(answer > max_count)
+                if(answer > max_count || max_count == 0)
                 {
-                    max_count = answer;
+					if(answer == 0)
+						max_count = 1;
+					else
+						max_count = answer;
+
                     max_prime = num;
                 }
                 if(answer == 0)
