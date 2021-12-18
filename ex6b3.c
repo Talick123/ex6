@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
     my_socket_q = connect_to_socket(argv[4], argv[5], con_kind, addr_info_res);
 
     get_user_req(my_socket_p, my_socket_q);
-    close(my_socket);
+    // close(my_socket);
     freeaddrinfo(addr_info_res);
 
     return EXIT_SUCCESS;
@@ -65,6 +65,8 @@ void get_user_req(my_socket_p, my_socket_q)
             case 'q':
                 q_request(my_socket_q);
                 break;
+            case 'e':
+                return;
             default:
                 break;
         }

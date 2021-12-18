@@ -21,7 +21,6 @@ inferno-03 = 10.3.10.25
 #include <stdio.h>
 #include <unistd.h>
 
-#define ARR_SIZE 1000
 #define ARGC_SIZE 2 // port
 #define NUM_OF_CLIENTS 3
 
@@ -31,6 +30,8 @@ inferno-03 = 10.3.10.25
 const int START = 1;
 const int END = -1;
 
+int main_socket;
+struct addrinfo *addr_info_res = NULL;
 // --------prototype section------------------------
 
 void check_argc(int argc);
@@ -45,8 +46,10 @@ void perrorandexit(char *msg);
 
 int main(int argc, char *argv[])
 {
-    int main_socket;
-    struct addrinfo con_kind, *addr_info_res = NULL;
+    //int main_socket;
+    struct addrinfo con_kind;//, *addr_info_res = NULL;
+    signal(SIGINT, catch_sigint);
+
 
     check_argc(argc);
     main_socket = init_socket(argv[1], con_kind, addr_info_res);
@@ -56,6 +59,14 @@ int main(int argc, char *argv[])
     freeaddrinfo(addr_info_res);
 
     return EXIT_SUCCESS;
+}
+
+//-------------------------------------------------
+
+void catch_sigint(int signum)
+{
+    close(main_socket);
+    freeaddrinfo(addr_info_res);
 }
 
 //-------------------------------------------------

@@ -32,6 +32,8 @@ inferno-03 = 10.3.10.25
 
 const int LEN_STR_MAX = 100;
 
+int main_socket;
+struct addrinfo *addr_info_res = NULL;
 // --------prototype section------------------------
 
 void check_argc(int argc);
@@ -47,17 +49,26 @@ int is_pal(char str[], int n);
 
 int main(int argc, char *argv[])
 {
-    int main_socket;
-    struct addrinfo con_kind, *addr_info_res = NULL;
+    // int main_socket;
+    struct addrinfo con_kind;//, *addr_info_res = NULL;
 
+    signal(SIGINT, catch_sigint);
     check_argc(argc);
     main_socket = init_socket(argv[1], con_kind, addr_info_res);
 
     get_requests(main_socket);
-    close(main_socket);
-    freeaddrinfo(addr_info_res);
+    // close(main_socket);
+    // freeaddrinfo(addr_info_res);
 
     return EXIT_SUCCESS;
+}
+
+//-------------------------------------------------
+
+void catch_sigint(int signum)
+{
+    close(main_socket);
+    freeaddrinfo(addr_info_res);
 }
 
 //-------------------------------------------------
