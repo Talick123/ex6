@@ -40,14 +40,14 @@ Output:
 
 // --------const and enum section------------------------
 
-//enum Status {START = 1, END = -1};
 const int START = 1;
 const int END = -1;
 
 // --------prototype section------------------------
 
 void check_argc(int argc);
-int connect_to_socket(char ip[], char port[], struct addrinfo con_kind, struct addrinfo *addr_info_res);
+int connect_to_socket(char ip[], char port[], struct addrinfo con_kind,
+					   struct addrinfo *addr_info_res);
 void generate_numbers(int my_socket);
 bool prime(int num);
 void print_data(int max_count,int max_prime ,int new_primes);
@@ -62,7 +62,8 @@ int main(int argc, char *argv[])
 
     check_argc(argc);
     srand(atoi(argv[1]));
-    my_socket = connect_to_socket(argv[2], argv[3], con_kind, addr_info_res);
+    my_socket = connect_to_socket(argv[2], argv[3], con_kind,
+									addr_info_res);
     generate_numbers(my_socket);
     close(my_socket);
     freeaddrinfo(addr_info_res);
@@ -78,12 +79,10 @@ void check_argc(int argc)
 }
 //-------------------------------------------------
 
-int connect_to_socket(char ip[], char port[], struct addrinfo con_kind, struct addrinfo *addr_info_res)
+int connect_to_socket(char ip[], char port[], struct addrinfo con_kind,
+                      struct addrinfo *addr_info_res)
 {
     int my_socket, rc;
-
-	printf("Port is: %s\n", port);
-	printf("IP is: %s\n", ip);
 
     memset(&con_kind, 0, sizeof(con_kind));
     con_kind.ai_family = AF_UNSPEC;
@@ -92,40 +91,32 @@ int connect_to_socket(char ip[], char port[], struct addrinfo con_kind, struct a
     if((rc = getaddrinfo(ip, port, &con_kind, &addr_info_res)!= 0))
         perrorandexit("getaddrinfo failed\n");
 
-    my_socket = socket(addr_info_res->ai_family, addr_info_res->ai_socktype, addr_info_res->ai_protocol); //returns file descriptor or -1 if failed
+    my_socket = socket(addr_info_res->ai_family,
+                       addr_info_res->ai_socktype,
+                       addr_info_res->ai_protocol);
 
     if(my_socket < 0)
         perrorandexit("socket failed\n");
 
     rc = connect(my_socket, addr_info_res->ai_addr, addr_info_res->ai_addrlen);
 
-    if(rc) //0 if succeeded, -1 if not
+    if(rc)
         perrorandexit("connect failed\n");
 
     return my_socket;
 }
 
-
 //-------------------------------------------------
 
 void generate_numbers(int my_socket)
 {
-	printf("in generate numbers\n");
-
     int rc;
     int max_count, max_prime, num, new_primes, answer;
-     max_count = new_primes = 0;
+    max_count = new_primes = 0;
 
     //writing to server that its ready to start
     write(my_socket, &START , sizeof(int));
     rc = read(my_socket, &answer, sizeof(int));
-
-    if(answer != START) //just to check
-    {
-        printf(" %d", answer);
-	}
-
-	printf("after start\n");
 
     while(answer != END)
     {
@@ -133,9 +124,7 @@ void generate_numbers(int my_socket)
 
         if(prime(num))
         {
-			printf("writing\n");
             write(my_socket, &num, sizeof(int));
-            printf("reading\n"); //gets to here
             rc = read(my_socket, &answer, sizeof(int));
             if(rc > 0)
             {
@@ -159,6 +148,7 @@ void generate_numbers(int my_socket)
 }
 
 //-------------------------------------------------
+
 //check is prime
 bool prime(int num)
 {
@@ -177,7 +167,7 @@ void print_data(int max_count,int max_prime ,int new_primes)
     printf("Process %d sent %d different new primes.\n",
         (int)getpid(), new_primes);
 
-     printf("The prime it sent most was %d, %d times \n",
+     printf("The prime it sent most was %d, %d times. \n",
         	   max_prime, max_count);
 }
 
