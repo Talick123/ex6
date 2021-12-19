@@ -20,6 +20,7 @@ inferno-03 = 10.3.10.25
 #include <string.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <signal.h>
 
 #define ARGC_SIZE 2 // port
 #define NUM_OF_CLIENTS 3
@@ -40,6 +41,9 @@ void get_requests(int main_socket);
 void wait_for_clients(fd_set rfd, int main_socket);
 int count_appearances(int arr[], int filled, int num);
 void print_data(int new_prime, int max, int min);
+void perrorandexit(char *msg);
+int is_prime(int num);
+void catch_sigint(int signum);
 void perrorandexit(char *msg);
 
 // --------main section------------------------
@@ -93,10 +97,10 @@ void get_requests(int main_socket)
 
 		if(FD_ISSET(main_socket ,&c_rfd))
 		{
-			serving_socket = accept(main_socket ,NULL ,NULL);
-			if(serving_socket >= 0)
+			main_socket = accept(main_socket ,NULL ,NULL);
+			if(main_socket >= 0)
 			{
-				FD_SET(serving_socket ,&rfd);
+				FD_SET(main_socket ,&rfd);
 			}
 		}
 
@@ -165,7 +169,15 @@ int is_prime(int num)
     for(i = 2; i*i <= num; i++)
     {
         if(num % i == 0)
-        return FALSE;
+        	return 0;
     }
-    return TRUE;
+    return 1;
+}
+
+//-------------------------------------------------
+
+void perrorandexit(char *msg)
+{
+    perror(msg);
+    exit(EXIT_FAILURE);
 }
