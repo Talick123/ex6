@@ -10,6 +10,7 @@
 inferno-03 = 10.3.10.25
 */
 
+//Prime Server
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -22,17 +23,14 @@ inferno-03 = 10.3.10.25
 #include <unistd.h>
 #include <signal.h>
 
-#define ARGC_SIZE 2 // port
+#define ARGC_SIZE 2 //i=1 => port
 #define NUM_OF_CLIENTS 3
 
-// --------const and enum section------------------------
-
-//enum Status {START = 1, END = -1};
-const int START = 1;
-const int END = -1;
+// --------global variables section------------------------
 
 int main_socket;
 struct addrinfo *addr_info_res = NULL;
+
 // --------prototype section------------------------
 
 void check_argc(int argc);
@@ -50,17 +48,13 @@ void perrorandexit(char *msg);
 
 int main(int argc, char *argv[])
 {
-    //int main_socket;
-    struct addrinfo con_kind;//, *addr_info_res = NULL;
+    struct addrinfo con_kind;
     signal(SIGINT, catch_sigint);
 
+    check_argc(argc); //check if program get port
+    main_socket = init_socket(argv[1], con_kind, addr_info_res); //create socket
 
-    check_argc(argc);
-    main_socket = init_socket(argv[1], con_kind, addr_info_res);
-
-    get_requests(main_socket);
-    close(main_socket);
-    freeaddrinfo(addr_info_res);
+    get_requests(main_socket); //start program
 
     return EXIT_SUCCESS;
 }
@@ -77,8 +71,7 @@ void catch_sigint(int signum)
 
 void get_requests(int main_socket)
 {
-	int num, rc, fd;
-    int res;
+	int num, rc, fd, res;
 	fd_set rfd ,c_rfd;
 
 	rc = listen(main_socket, NUM_OF_CLIENTS);
@@ -93,26 +86,26 @@ void get_requests(int main_socket)
 	while(1)
 	{
 		c_rfd = rfd;
-		rc = select(getdtablesize() ,&c_rfd ,NULL ,NULL ,NULL);
+		rc = select(getdtablesize(), &c_rfd, NULL, NULL, NULL);
 
 		if(FD_ISSET(main_socket ,&c_rfd))
 		{
-			main_socket = accept(main_socket ,NULL ,NULL);
+			main_socket = accept(main_socket, NULL, NULL);
 			if(main_socket >= 0)
 			{
-				FD_SET(main_socket ,&rfd);
+				FD_SET(main_socket, &rfd);
 			}
 		}
-
+        //read num and retrun if prime or not
 		for(fd = main_socket + 1; fd < getdtablesize(); fd++)
 		{
-			if(FD_ISSET(fd ,&c_rfd))
+			if(FD_ISSET(fd, &c_rfd))
 			{
-				rc = read(fd ,&num ,sizeof(int));
+				rc = read(fd, &num, sizeof(int));
 				if(rc > 0)
 				{
 					res = is_prime(num);
-					write(fd ,&res ,sizeof(int));
+					write(fd, &res, sizeof(int));
 				}
 				else
 				{
@@ -131,14 +124,11 @@ void check_argc(int argc)
 		perrorandexit("Error! Incorrect number of arguments\n");
 }
 
-
 //-------------------------------------------------
 
 int init_socket(char port[], struct addrinfo con_kind, struct addrinfo *addr_info_res)
 {
     int main_socket, rc;
-
-    printf("Port is: %s\n", port);
 
     memset(&con_kind, 0, sizeof(con_kind));
     con_kind.ai_family = AF_UNSPEC;

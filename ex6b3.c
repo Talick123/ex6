@@ -27,7 +27,12 @@ inferno-03 = 10.3.10.25
 #include <signal.h>
 
 
-#define ARGC_SIZE 5
+#define ARGC_SIZE 5 //1: prime server ip
+                    //2: prime server port
+                    //3: palindrome server ip
+                    //4: palindrome server port
+
+//---------const section ---------------------------
 
 const int LEN_STR_MAX = 100;
 
@@ -55,7 +60,6 @@ int main(int argc, char *argv[])
     my_socket_q = connect_to_socket(argv[3], argv[4], con_kind, addr_info_res);
 
     get_user_req(my_socket_p, my_socket_q);
-    // close(my_socket);
     freeaddrinfo(addr_info_res);
 
     return EXIT_SUCCESS;
@@ -79,6 +83,7 @@ void get_user_req(int my_socket_p, int my_socket_q)
             case 'q':
                 q_request(my_socket_q);
                 break;
+            //end process
             case 'e':
                 return;
             default:
@@ -88,7 +93,7 @@ void get_user_req(int my_socket_p, int my_socket_q)
 }
 
 //------------------------------------------------
-
+// get int and sends to prime server - print the result
 void p_request(int my_socket_p)
 {
     int num, res;
@@ -110,7 +115,7 @@ void p_request(int my_socket_p)
 }
 
 //------------------------------------------------
-
+// get string and sends to palindrome server - print the result
 void q_request(int my_socket_q)
 {
 	int rc, res;
@@ -125,8 +130,7 @@ void q_request(int my_socket_q)
     }
     else
     {
-        perror("read() failed");
-        exit(EXIT_FAILURE);
+        perrorandexit("read() failed");
     }
 }
 
@@ -143,9 +147,6 @@ void check_argc(int argc)
 int connect_to_socket(char ip[], char port[], struct addrinfo con_kind, struct addrinfo *addr_info_res)
 {
     int my_socket, rc;
-
-	printf("Port is: %s\n", port);
-	printf("IP is: %s\n", ip);
 
     memset(&con_kind, 0, sizeof(con_kind));
     con_kind.ai_family = AF_UNSPEC;
