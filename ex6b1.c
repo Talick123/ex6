@@ -1,13 +1,40 @@
 /*
-- via argument vector receives port number
 
-- opens socket (for a number of clients)
-- in a loop
-    - reads non-negative integer from client
-    - returns to client if the number is prime or not
-    - ends with SIGINT, in signal handler, releases socket
+File: ex6b1.c ex6b2.c ex6b3.c
+Interactions Between Prime Checker, Palindrome Checker and Client
+=====================================================================
+Written by: Tali Kalev, ID:208629691, Login: talikal
+		and	Noga Levy, ID:315260927, Login: levyno
 
-inferno-03 = 10.3.10.25
+ex6b1: reads number via socket and sends back whether number is prime or not.
+ex6b2: reads string via socket and sends back whether string is palindrome or not
+ex6b3: connects to both sockets. reads from user p or q, and then
+number of series of numbers respectively. Enters into the appropriate socket
+the data and waits for response. Prints result onto screen.
+
+Compile: gcc -Wall ex6b1.c -o ex6b1
+         gcc -Wall ex6b2.c -o ex6b2
+        gcc -Wall ex6b3.c -o ex6b3
+     (ex6b1 = prime checker, ex6b2 = palindrome checker, ex6b3 = client)
+
+Run: run all three programs one after the other. First 2 programs receive respective
+    ports, third program is run with IP and port of prime server and then IP and
+    port of palindrome server.
+    Example:
+        ./ex6b1 12121
+        ./ex6b2 13131
+        ./ex6b3 10.3.10.25 12121 10.3.10.25 13131
+
+Input: Only ex6b3 receives input. If input is p and then number, ex6b1 checks if
+        it is prime. If input is q and then a series of numbers ending in 0, ex6b2
+        checks if it is a palindrome.
+        Example: p
+                 7
+
+Output: ex6c3 prints answer of other programs appropriately
+        Example:
+        Is Prime
+
 */
 
 

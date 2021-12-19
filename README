@@ -1,1 +1,74 @@
-# ex6
+
+File: ex6a1.c ex6a2.c
+Generate and Collect Primes from Socket
+=====================================================================
+Written by: Tali Kalev, ID:208629691, Login: talikal
+		and	Noga Levy, ID:315260927, Login: levyno
+
+This program runs with 4 different processes. Three processes that generates
+random numbers, when the number is prime the process sends it to main process via socket.
+When the main process sees that the array is full, it sends message to other
+processes, prints out data and ends. The main proccess prints how many different
+numbers it received, the smallest number and the biggest number. The other processes
+prints how many new primes it sent and the prime it sent most.
+
+Compile: gcc -Wall ex6a1.c -o ex6a1
+         gcc -Wall ex6a2.c -o ex6a2
+     (ex6a1 = main process, ex6a2 = sub process)
+
+Run: for start run the main process with port number.
+    Then, run 3 times the sub processes and send to the vector
+    arguments the number of process (1-3), IP address of main process and port
+    number:
+        ./ex6a1 12121
+        ./ex6a2 1 10.3.10.25 12121
+        ./ex6a2 2 10.3.10.25 12121
+        ./ex6a2 3 10.3.10.25 12121
+
+Input: No Input
+
+Output:
+    From main process (ex6a1) = minimum prime, max prime and number of
+    different numbers in the array.
+    Example: The number of different primes received is: 1000.
+             The max prime is: 2146710941.
+             The min prime is: 2701151.
+
+    From sub process (ex6a2) = prime number they send the most to main process
+    Example: Process 683348 sent 326 different new primes.
+             The prime it sent most was 747983063, 1 times.
+
+File: ex6b1.c ex6b2.c ex6b3.c
+Interactions Between Prime Checker, Palindrome Checker and Client
+=====================================================================
+Written by: Tali Kalev, ID:208629691, Login: talikal
+		and	Noga Levy, ID:315260927, Login: levyno
+
+ex6b1: reads number via socket and sends back whether number is prime or not.
+ex6b2: reads string via socket and sends back whether string is palindrome or not
+ex6b3: connects to both sockets. reads from user p or q, and then
+number of series of numbers respectively. Enters into the appropriate socket
+the data and waits for response. Prints result onto screen.
+
+Compile: gcc -Wall ex6b1.c -o ex6b1
+         gcc -Wall ex6b2.c -o ex6b2
+        gcc -Wall ex6b3.c -o ex6b3
+     (ex6b1 = prime checker, ex6b2 = palindrome checker, ex6b3 = client)
+
+Run: run all three programs one after the other. First 2 programs receive respective
+    ports, third program is run with IP and port of prime server and then IP and
+    port of palindrome server.
+    Example:
+        ./ex6b1 12121
+        ./ex6b2 13131
+        ./ex6b3 10.3.10.25 12121 10.3.10.25 13131
+
+Input: Only ex6b3 receives input. If input is p and then number, ex6b1 checks if
+        it is prime. If input is q and then a series of numbers ending in 0, ex6b2
+        checks if it is a palindrome.
+        Example: p
+                 7
+
+Output: ex6c3 prints answer of other programs appropriately
+        Example:
+        Is Prime

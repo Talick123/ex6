@@ -1,20 +1,44 @@
 /*
-- receives port via argument vector
-- waits for 3 messages via socket, sends back 3 to tell clients to start
 
-- defines array of integer ARR_SIZE = 1000
-- from each client, reads number, adds to array
-- sends feedback to client that sent the number
-- when finished to fill array, sends to clients -1
+File: ex6a1.c ex6a2.c
+Generate and Collect Primes from Socket
+=====================================================================
+Written by: Tali Kalev, ID:208629691, Login: talikal
+		and	Noga Levy, ID:315260927, Login: levyno
+
+This program runs with 4 different processes. Three processes that generates
+random numbers, when the number is prime the process sends it to main process via socket.
+When the main process sees that the array is full, it sends message to other
+processes, prints out data and ends. The main proccess prints how many different
+numbers it received, the smallest number and the biggest number. The other processes
+prints how many new primes it sent and the prime it sent most.
+
+Compile: gcc -Wall ex6a1.c -o ex6a1
+         gcc -Wall ex6a2.c -o ex6a2
+     (ex6a1 = main process, ex6a2 = sub process)
+
+Run: for start run the main process with port number.
+    Then, run 3 times the sub processes and send to the vector
+    arguments the number of process (1-3), IP address of main process and port
+    number:
+        ./ex6a1 12121
+        ./ex6a2 1 10.3.10.25 12121
+        ./ex6a2 2 10.3.10.25 12121
+        ./ex6a2 3 10.3.10.25 12121
+
+Input: No Input
+
 Output:
     From main process (ex6a1) = minimum prime, max prime and number of
     different numbers in the array.
-    Example: The number of different primes received is: 168
-             The max prime is: 997. The min primes is: 2
-    From sub process (ex6a2) = prime number they send the most to main process
-    Example: Process 1101373 sent the prime 233, 14 times
+    Example: The number of different primes received is: 1000.
+             The max prime is: 2146710941.
+             The min prime is: 2701151.
 
-inferno-03 = 10.3.10.25
+    From sub process (ex6a2) = prime number they send the most to main process
+    Example: Process 683348 sent 326 different new primes.
+             The prime it sent most was 747983063, 1 times.
+
 */
 // --------include section------------------------
 
