@@ -38,6 +38,7 @@ Output:
     Example: Process 683348 sent 326 different new primes.
              The prime it sent most was 747983063, 1 times.
 
+
 File: ex6b1.c ex6b2.c ex6b3.c
 Interactions Between Prime Checker, Palindrome Checker and Client
 =====================================================================
@@ -52,8 +53,8 @@ the data and waits for response. Prints result onto screen.
 
 Compile: gcc -Wall ex6b1.c -o ex6b1
          gcc -Wall ex6b2.c -o ex6b2
-        gcc -Wall ex6b3.c -o ex6b3
-     (ex6b1 = prime checker, ex6b2 = palindrome checker, ex6b3 = client)
+         gcc -Wall ex6b3.c -o ex6b3
+     (ex6b1 = prime server, ex6b2 = palindrome server, ex6b3 = client)
 
 Run: run all three programs one after the other. First 2 programs receive respective
     ports, third program is run with IP and port of prime server and then IP and
@@ -64,11 +65,11 @@ Run: run all three programs one after the other. First 2 programs receive respec
         ./ex6b3 10.3.10.25 12121 10.3.10.25 13131
 
 Input: Only ex6b3 receives input. If input is p and then number, ex6b1 checks if
-        it is prime. If input is q and then a series of numbers ending in 0, ex6b2
+        it is prime. If input is q and then a series of chars ending in newline, ex6b2
         checks if it is a palindrome.
         Example: p
                  7
 
 Output: ex6c3 prints answer of other programs appropriately
         Example:
-        Is Prime
+		is prime ? yes
