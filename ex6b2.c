@@ -38,6 +38,8 @@ Output: ex6c3 prints answer of other programs appropriately
 
 */
 
+// Palindrome Server
+
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
@@ -49,16 +51,18 @@ Output: ex6c3 prints answer of other programs appropriately
 #include <unistd.h>
 #include <signal.h>
 
-#define ARR_SIZE 1000
-#define ARGC_SIZE 2 // port
+#define ARGC_SIZE 2 //port
 #define NUM_OF_CLIENTS 3
 
 // --------const and enum section------------------------
 
 const int LEN_STR_MAX = 100;
 
+// --------global variables section------------------------
+
 int main_socket;
 struct addrinfo *addr_info_res = NULL;
+
 // --------prototype section------------------------
 
 void check_argc(int argc);
@@ -75,16 +79,13 @@ void catch_sigint(int signum);
 
 int main(int argc, char *argv[])
 {
-    // int main_socket;
-    struct addrinfo con_kind;//, *addr_info_res = NULL;
+    struct addrinfo con_kind;
 
     signal(SIGINT, catch_sigint);
     check_argc(argc);
     main_socket = init_socket(argv[1], con_kind, addr_info_res);
 
     get_requests(main_socket);
-    // close(main_socket);
-    // freeaddrinfo(addr_info_res);
 
     return EXIT_SUCCESS;
 }
@@ -108,8 +109,7 @@ void get_requests(int main_socket)
 	rc = listen(main_socket,NUM_OF_CLIENTS);
 	if(rc)
 	{
-		perror("listen failed");
-		exit(EXIT_FAILURE);
+        perrorandexit("listen failed");
 	}
 	FD_ZERO(&rfd);
 	FD_SET(main_socket ,&rfd);
@@ -140,8 +140,7 @@ void get_requests(int main_socket)
 				}
 				else
 				{
-					perror("read() failed");
-					exit(EXIT_FAILURE);
+					perrorandexit("read() failed");
 				}
 			}
 		}
@@ -162,8 +161,6 @@ void check_argc(int argc)
 int init_socket(char port[], struct addrinfo con_kind, struct addrinfo *addr_info_res)
 {
     int main_socket, rc;
-
-    printf("Port is: %s\n", port);
 
     memset(&con_kind, 0, sizeof(con_kind));
     con_kind.ai_family = AF_UNSPEC;
