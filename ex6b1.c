@@ -92,6 +92,7 @@ void catch_sigint(int signum)
 {
     close(main_socket);
     freeaddrinfo(addr_info_res);
+    exit(EXIT_SUCCESS);
 }
 
 //-------------------------------------------------
@@ -134,6 +135,11 @@ void get_requests(int main_socket)
 					res = is_prime(num);
 					write(fd, &res, sizeof(int));
 				}
+				else if(rc == 0)
+                {
+                    close(fd);
+                    FD_CLR(fd, &rfd);
+                }
 				else
 				{
 					perrorandexit("read() failed");
