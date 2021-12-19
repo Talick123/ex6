@@ -15,6 +15,18 @@ inferno-03 = 10.3.10.25
 */
 
 
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <unistd.h>
+#include <string.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <signal.h>
+
+
 #define ARGC_SIZE 5
 
 const int LEN_STR_MAX = 100;
@@ -23,7 +35,10 @@ const int LEN_STR_MAX = 100;
 
 void check_argc(int argc);
 int connect_to_socket(char ip[], char port[], struct addrinfo con_kind, struct addrinfo *addr_info_res);
-
+void get_user_req(int my_socket_p, int my_socket_q);
+void perrorandexit(char *msg);
+void p_request(int my_socket_p);
+void q_request(int my_socket_q);
 
 // --------main section------------------------
 
@@ -36,8 +51,8 @@ int main(int argc, char *argv[])
     srand(atoi(argv[1]));
     srand(atoi(argv[3]));
 
-    my_socket_p = connect_to_socket(argv[2], argv[3], con_kind, addr_info_res);
-    my_socket_q = connect_to_socket(argv[4], argv[5], con_kind, addr_info_res);
+    my_socket_p = connect_to_socket(argv[1], argv[2], con_kind, addr_info_res);
+    my_socket_q = connect_to_socket(argv[3], argv[4], con_kind, addr_info_res);
 
     get_user_req(my_socket_p, my_socket_q);
     // close(my_socket);
@@ -47,9 +62,8 @@ int main(int argc, char *argv[])
 }
 //-------------------------------------------------
 
-void get_user_req(my_socket_p, my_socket_q)
+void get_user_req(int my_socket_p, int my_socket_q)
 {
-    int rc;
     char c;
 
     while(true)
@@ -83,8 +97,6 @@ void p_request(int my_socket_p)
     scanf(" %d", &num);
     getchar();
 
-    shm_ptr_p[P_NUM] = num;
-
     write(my_socket_p ,&num ,sizeof(int));
     rc = read(my_socket_p ,&res ,sizeof(int));
     if(rc > 0)
@@ -99,27 +111,14 @@ void p_request(int my_socket_p)
 
 //------------------------------------------------
 
-void q_request()
+void q_request(int my_socket_q)
 {
-    int num, i;
+	int rc, res;
     char str[LEN_STR_MAX];
-    char c;
-    for(i = 0; i < LEN_STR_MAX; i++)
-    {
-        c = getchar();
-        //N: read to '0' ?
-        if(c == '0')
-        {
-            str[i] = '\0'; // null?
-            break;
-        }
-        else
-            str[i] = c;
-    }
-    getchar();
 
+	scanf("%s", str);
     write(my_socket_q ,&str ,sizeof(char)*LEN_STR_MAX);
-    rc = read(my_socket_q ,res ,sizeof(int)*MAX_AMOUNT);
+    rc = read(my_socket_q ,&res ,sizeof(int));
     if(rc > 0)
     {
         printf("is palindrome ? %s\n", res ? "yes" : "no");
@@ -168,68 +167,10 @@ int connect_to_socket(char ip[], char port[], struct addrinfo con_kind, struct a
     return my_socket;
 }
 
+//-------------------------------------------------
 
-
-
-//
-// #include <sys/types.h>
-// #include <sys/socket.h>
-// #include <netdb.h>
-//
-//
-// int main(int argc, char *argv[])
-// {
-//     int rc;
-//     int my_socket;
-//     // int i, num // ?
-//     char rbuf[BUFLEN];
-//     struct addrinfo con_kind, *addr_info_res;
-//
-//     //check argc
-//     if(argc < 2)
-//     {
-// 		fprintf(stderr, "Missing");
-// 		exit(EXIT_FAILURE);
-// 	}
-//
-//     memset(&con_kind, 0, size(con_kind));
-//     con_kind.ai_family = AF_UNSPEC;
-//     con_kind.ai_socktype = SOCK_STREAM;
-//
-//     if((rc = getaddrinfor(/*SERVER IP*/, /*SERVER PORT*/, &con_kind, &addr_info_res)!= 0))
-//     {
-// 		perrorandexit();
-// 	}
-//
-//     my_socket = socket(addr_info_res->ai_family, addr_info_res->ai_socktype, addr_info_res->ai_protocol);
-//
-//     if(my_socket < 0)
-//         perrorandexit();
-//
-//     rc = connect(my_socket, addr_info_res->ai_addr, addr_info_res->ai_addrlen);
-//
-//     if(rc)
-//         perrorandexit();
-//
-// 	while(1)
-// 	{
-// 		puts("enter a number");
-// 		scanf("%d", &num);
-// 		if(!num) break;
-//
-// 		write(my_socket, &num, rbuf, BUFLEN);
-// 		rc = read(my_socket, rbuf, BUFLEN);
-//
-// 		if(rc > 0)
-// 			printf("%s\n", rbuf);
-// 		else
-// 		{
-// 			perrorandexit() // read failed
-// 		}
-// 	}
-//
-// 	close(my_soscket);
-// 	freeaddrinfo(addr_info_res);
-//
-//     return EXIT_SUCCESS;
-// }
+void perrorandexit(char *msg)
+{
+    perror(msg);
+    exit(EXIT_FAILURE);
+}

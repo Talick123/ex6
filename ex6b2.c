@@ -12,17 +12,13 @@ inferno-03 = 10.3.10.25
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
-
-
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netdb.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <unistd.h>
 #include <string.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <signal.h>
 
 #define ARR_SIZE 1000
 #define ARGC_SIZE 2 // port
@@ -44,6 +40,7 @@ int count_appearances(int arr[], int filled, int num);
 void print_data(int new_prime, int max, int min);
 void perrorandexit(char *msg);
 int is_pal(char str[], int n);
+void catch_sigint(int signum);
 
 // --------main section------------------------
 
@@ -76,7 +73,7 @@ void catch_sigint(int signum)
 void get_requests(int main_socket)
 {
     int rc, fd, res;
-    char str[LEN_STR_MAX],
+    char str[LEN_STR_MAX];
 	fd_set rfd ,c_rfd;
 
 	rc = listen(main_socket,NUM_OF_CLIENTS);
@@ -95,10 +92,10 @@ void get_requests(int main_socket)
 
 		if(FD_ISSET(main_socket ,&c_rfd))
 		{
-			serving_socket = accept(main_socket ,NULL ,NULL);
-			if(serving_socket >= 0)
+			main_socket = accept(main_socket ,NULL ,NULL);
+			if(main_socket >= 0)
 			{
-				FD_SET(serving_socket ,&rfd);
+				FD_SET(main_socket ,&rfd);
 			}
 		}
 
@@ -184,3 +181,9 @@ int is_pal(char str[], int n)
 }
 
 //-------------------------------------------------
+
+void perrorandexit(char *msg)
+{
+    perror(msg);
+    exit(EXIT_FAILURE);
+}
