@@ -34,16 +34,15 @@ inferno-03 = 10.3.10.25
 
 // --------const and enum section------------------------
 
-//enum Status {START = 1, END = -1};
 const int START = 1;
 const int END = -1;
 
 // --------prototype section------------------------
 
 void check_argc(int argc);
-int init_socket(char port[], struct addrinfo con_kind, struct addrinfo *addr_info_res);
+int init_socket(char port[], struct addrinfo con_kind,
+				struct addrinfo *addr_info_res);
 void fill_arr(int main_socket);
-void wait_for_clients(fd_set rfd, int main_socket);
 int count_appearances(int arr[], int filled, int num);
 void print_data(int new_prime, int max, int min);
 void perrorandexit(char *msg);
@@ -74,11 +73,10 @@ void check_argc(int argc)
 
 //-------------------------------------------------
 
-int init_socket(char port[], struct addrinfo con_kind, struct addrinfo *addr_info_res)
+int init_socket(char port[], struct addrinfo con_kind,
+				struct addrinfo *addr_info_res)
 {
     int main_socket, rc;
-
-    printf("Port is: %s\n", port);
 
     memset(&con_kind, 0, sizeof(con_kind));
     con_kind.ai_family = AF_UNSPEC;
@@ -88,7 +86,9 @@ int init_socket(char port[], struct addrinfo con_kind, struct addrinfo *addr_inf
     if((rc = getaddrinfo(NULL, port, &con_kind, &addr_info_res)!= 0))
         perrorandexit("getaddrinfo failed\n");
 
-    main_socket = socket(addr_info_res->ai_family, addr_info_res->ai_socktype, addr_info_res->ai_protocol);
+    main_socket = socket(addr_info_res->ai_family,
+						 addr_info_res->ai_socktype,
+						 addr_info_res->ai_protocol);
 
     if(main_socket < 0)
         perrorandexit("socket failed\n");
@@ -105,32 +105,27 @@ int init_socket(char port[], struct addrinfo con_kind, struct addrinfo *addr_inf
 
 void fill_arr(int main_socket)
 {
-	printf("in fill arr\n");
-
-    int rc, serving_socket, filled = 0, num, new_prime = 0, min = 0, max = 0, count;
+    int rc, serving_socket, filled, num, new_prime, min, max, count;
     int arr[ARR_SIZE];
     fd_set rfd, c_rfd;
-    int fd;
+    int fd, client_count, answer;
 
-    int client_count = 0, answer;
+    filled = new_prime = min = max = client_count = 0;
 
-    rc = listen(main_socket, NUM_OF_CLIENTS); //T: 3?
+    rc = listen(main_socket, NUM_OF_CLIENTS);
     if(rc)
         perrorandexit("listen failed\n");
 
     FD_ZERO(&rfd);
     FD_SET(main_socket, &rfd);
 
-    wait_for_clients(rfd, main_socket);
-
-
     //receiving ones from all clients
     while(client_count !=  NUM_OF_CLIENTS)
     {
-		printf("client count is: %d\n", client_count);
         c_rfd = rfd;
+
         rc = select(getdtablesize(), &c_rfd, NULL, NULL, NULL); //check rc?
-        printf("rc is: %d\n", rc);
+
         if(FD_ISSET(main_socket, &c_rfd))
         {
             serving_socket = accept(main_socket, NULL, NULL);
@@ -156,23 +151,16 @@ void fill_arr(int main_socket)
         write(fd, &START, sizeof(int));
 	}
 
-	printf("after wait\n");
     //filling array
     while(filled < ARR_SIZE)
     {
-		printf("filled is: %d\n", filled);
-		printf("in main while\n");
         c_rfd = rfd;
 
-		printf("before select\n");//gets to here
-        rc = select(getdtablesize(), &c_rfd, NULL, NULL, NULL); //check rc?
-        printf("rc is: %d\n", rc);
+        rc = select(getdtablesize(), &c_rfd, NULL, NULL, NULL);
 
-		printf("after select\n");
         if(FD_ISSET(main_socket, &c_rfd))
         {
             serving_socket = accept(main_socket, NULL, NULL);
-            printf("after accept\n");
             if(serving_socket >= 0)
                 FD_SET(serving_socket, &rfd);
         }
@@ -181,13 +169,11 @@ void fill_arr(int main_socket)
         {
             if(FD_ISSET(fd, &c_rfd))
             {
-				printf("reading\n");
                 rc = read(fd, &num, sizeof(int));
                 if(rc > 0)
                 {
                     if(filled >= ARR_SIZE)
                     {
-						printf("writing\n");
                         write(fd, &END, sizeof(int));
                         close(fd);
                         FD_CLR(fd, &rfd);
@@ -195,7 +181,6 @@ void fill_arr(int main_socket)
                     else
                     {
                         count = count_appearances(arr, filled, num);
-                        printf("writing\n");
                         write(fd, &count, sizeof(int));
 
                         if(count == 0)
@@ -234,58 +219,13 @@ void fill_arr(int main_socket)
             }
 		}
     }
-
     print_data(new_prime, max, min);
-
-}
-
-//-------------------------------------------------
-
-void wait_for_clients(fd_set rfd, int main_socket)
-{
-
-	printf("in wait_for_clients\n");
-	/*
-    int rc, client_count = 0, serving_socket, fd, answer;
-    fd_set c_rfd;
-
-    //receiving ones from all clients
-    while(client_count !=  NUM_OF_CLIENTS)
-    {
-		printf("client count is: %d\n", client_count);
-        c_rfd = rfd;
-        rc = select(getdtablesize(), &c_rfd, NULL, NULL, NULL); //check rc?
-        printf("rc is: %d\n", rc);
-        if(FD_ISSET(main_socket, &c_rfd))
-        {
-            serving_socket = accept(main_socket, NULL, NULL);
-            if(serving_socket >= 0)
-                FD_SET(serving_socket, &rfd);
-        }
-        for(fd = main_socket + 1; fd < getdtablesize(); fd++)
-        {
-            if(FD_ISSET(fd, &c_rfd))
-            {
-                rc = read(fd, &answer, sizeof(int));
-                if(rc > 0)
-                    client_count++;
-            }
-            if(client_count == NUM_OF_CLIENTS)
-                break;
-        }
-    }
-
-    //sending to clients to start
-    for(fd = main_socket + 1; fd < getdtablesize(); fd++)
-        write(fd, &START, sizeof(int));
-*/
 }
 
 //-------------------------------------------------
 
 int count_appearances(int arr[], int filled, int num)
 {
-	printf("in count appearances\n");
     int counter = 0, index;
 
     for(index = 0; index < filled; index++)
@@ -299,10 +239,9 @@ int count_appearances(int arr[], int filled, int num)
 
 void print_data(int new_prime, int max, int min)
 {
-	printf("The number of different primes received is: %d\n", new_prime);
-	printf("The max prime is: %d\n. The min prime is: %d\n", max, min);
+	printf("The number of different primes received is: %d.\n", new_prime);
+	printf("The max prime is: %d.\n The min prime is: %d.\n", max, min);
 }
-
 
 //-------------------------------------------------
 
